@@ -44,8 +44,8 @@
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.TrackId">Edit</a> |
-                <form asp-action="Delete" method="post" asp-route-id="@item.TrackId" onsubmit="return confirm('Are you sure you want to delete this item?');">
-                    <button type="submit" class="btn btn-danger">Delete</button>
+                <form asp-action="Delete" method="post" asp-route-id="@item.TrackId" onsubmit="return confirm('Are you sure you want to delete this item?');" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" style="height: 35px;">Delete</button>
                 </form>
             </td>
         </tr>
