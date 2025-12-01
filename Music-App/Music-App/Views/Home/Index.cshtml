@@ -1,8 +1,27 @@
-﻿@{
+﻿using Music_App.Models;
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">Music</h1>
     
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Artist</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var music in Model)
+            {
+                <tr>
+                    <td>@music.TrackTitle</td>
+                    <td>@music.TrackArtist</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
