@@ -25,24 +25,7 @@ namespace Music_App.Controllers
                           View(await _context.Musics.ToListAsync()) :
                           Problem("Entity set 'MusicContext.Musics'  is null.");
         }
-
-        // GET: Musics/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Musics == null)
-            {
-                return NotFound();
-            }
-
-            var music = await _context.Musics
-                .FirstOrDefaultAsync(m => m.TrackId == id);
-            if (music == null)
-            {
-                return NotFound();
-            }
-
-            return View(music);
-        }
+        
 
         // GET: Musics/Create
         public IActionResult Create()
