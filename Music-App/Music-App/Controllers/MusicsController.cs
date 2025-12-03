@@ -6,12 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Music_App.Models;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 
 namespace Music_App.Controllers
 {
     public class MusicsController : Controller
     {
+        private WaveOutEvent output;
+        private AudioFileReader audioFile;
         private readonly MusicContext _context;
+        private static bool isAudioPlaying = false;
 
         public MusicsController(MusicContext context)
         {
@@ -21,19 +26,19 @@ namespace Music_App.Controllers
         // GET: Musics
         public async Task<IActionResult> Index()
         {
-              return _context.Musics != null ? 
-                          View(await _context.Musics.ToListAsync()) :
-                          Problem("Entity set 'MusicContext.Musics'  is null.");
+            return _context.Musics != null
+                ? View(await _context.Musics.ToListAsync())
+                : Problem("Entity set 'MusicContext.Musics'  is null.");
         }
-        
+
         // GET: Musics
         public async Task<IActionResult> Database()
         {
-            return _context.Musics != null ? 
-                View(await _context.Musics.ToListAsync()) :
-                Problem("Entity set 'MusicContext.Musics'  is null.");
+            return _context.Musics != null
+                ? View(await _context.Musics.ToListAsync())
+                : Problem("Entity set 'MusicContext.Musics'  is null.");
         }
-        
+
 
         // GET: Musics/Create
         public IActionResult Create()
@@ -46,7 +51,8 @@ namespace Music_App.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TrackId,TrackFile,TrackTitle,TrackArtist,TrackLength")] Music music)
+        public async Task<IActionResult> Create(
+            [Bind("TrackId,TrackFile,TrackTitle,TrackArtist,TrackLength")] Music music)
         {
             if (ModelState.IsValid)
             {
@@ -54,6 +60,7 @@ namespace Music_App.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Database));
             }
+
             return View(music);
         }
 
@@ -70,6 +77,7 @@ namespace Music_App.Controllers
             {
                 return NotFound();
             }
+
             return View(music);
         }
 
@@ -78,7 +86,8 @@ namespace Music_App.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TrackId,TrackFile,TrackTitle,TrackArtist,TrackLength")] Music music)
+        public async Task<IActionResult> Edit(int id,
+            [Bind("TrackId,TrackFile,TrackTitle,TrackArtist,TrackLength")] Music music)
         {
             if (id != music.TrackId)
             {
@@ -103,8 +112,10 @@ namespace Music_App.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Database));
             }
+
             return View(music);
         }
 
@@ -135,19 +146,77 @@ namespace Music_App.Controllers
             {
                 return Problem("Entity set 'MusicContext.Musics'  is null.");
             }
+
             var music = await _context.Musics.FindAsync(id);
             if (music != null)
             {
                 _context.Musics.Remove(music);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Database));
         }
 
         private bool MusicExists(int id)
         {
-          return (_context.Musics?.Any(e => e.TrackId == id)).GetValueOrDefault();
+            return (_context.Musics?.Any(e => e.TrackId == id)).GetValueOrDefault();
+        }
+        
+        [HttpPost("play")]
+        public IActionResult Play()
+        {
+            if (output == null)
+            {
+                output = new WaveOutEvent();
+                output.PlaybackStopped += OnPlaybackStopped;
+                Console.WriteLine("Initialized output object.");
+            }
+
+            if (audioFile == null)
+            {
+                audioFile = new AudioFileReader(@"C:\Users\Nicoh\Downloads\Future-Technology(chosic.com).mp3");
+                output.Init(audioFile);
+                Console.WriteLine("Initialized audioFile.");
+            }
+
+            if (output.PlaybackState != PlaybackState.Playing)
+            {
+                output.Play();
+                isAudioPlaying = true;
+                Console.WriteLine("Audio started playing.");
+            }
+            else
+            {
+                Console.WriteLine("Audio is already playing.");
+            }
+            return Ok("Audio is playing");
+        }
+        
+        [HttpPost("stop")]
+        public IActionResult Stop()
+        {
+            Console.WriteLine("Stop button pressed.");
+
+            if (output == null || !isAudioPlaying)
+            {
+                Console.WriteLine("No audio is currently playing.");
+                return BadRequest("No audio is currently playing.");
+            }
+
+            output.Stop();
+            isAudioPlaying = false;
+            Console.WriteLine("Audio stopped successfully.");
+            return Ok("Audio stopped");
+        }
+        
+        private void OnPlaybackStopped(object sender, StoppedEventArgs args)
+        {
+            output?.Dispose();
+            audioFile?.Dispose();
+            output = null;
+            audioFile = null;
+            isAudioPlaying = false;
+            Console.WriteLine("Playback stopped, resources disposed.");
         }
     }
 }

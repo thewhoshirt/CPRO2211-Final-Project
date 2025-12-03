@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<Music_App.Models.Music>
-
 @{
     ViewData["Title"] = "Index";
 }
@@ -52,3 +51,29 @@
 }
     </tbody>
 </table>
+
+<div>
+    <script>
+        function playAudio() {
+            fetch('/play', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Audio is playing');
+                }
+            }).catch(err => console.error('Error:', err));
+        }
+
+        function stopAudio() {
+            fetch('/stop', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Audio stopped');
+                }
+            }).catch(err => console.error('Error:', err));
+        }
+    </script>
+    <button onclick="playAudio()">Play</button>
+    <button onclick="stopAudio()">Stop</button>
+</div>
