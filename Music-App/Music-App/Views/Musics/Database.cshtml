@@ -1,34 +1,34 @@
 ﻿@model IEnumerable<Music_App.Models.Music>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Database";
 }
 
-<h1>Index</h1>
+<h1>Database</h1>
 
 <p>
     <a asp-action="Create">Add song to database</a>
 </p>
 <table class="table">
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TrackFile)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrackTitle)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrackArtist)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrackLength)
-            </th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.TrackFile)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TrackTitle)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TrackArtist)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TrackLength)
+        </th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var item in Model) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.TrackFile)
@@ -49,6 +49,6 @@
                 </form>
             </td>
         </tr>
-}
+    }
     </tbody>
 </table>

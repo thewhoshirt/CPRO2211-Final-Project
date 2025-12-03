@@ -26,6 +26,14 @@ namespace Music_App.Controllers
                           Problem("Entity set 'MusicContext.Musics'  is null.");
         }
         
+        // GET: Musics
+        public async Task<IActionResult> Database()
+        {
+            return _context.Musics != null ? 
+                View(await _context.Musics.ToListAsync()) :
+                Problem("Entity set 'MusicContext.Musics'  is null.");
+        }
+        
 
         // GET: Musics/Create
         public IActionResult Create()
@@ -44,7 +52,7 @@ namespace Music_App.Controllers
             {
                 _context.Add(music);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Database));
             }
             return View(music);
         }
@@ -95,7 +103,7 @@ namespace Music_App.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Database));
             }
             return View(music);
         }
@@ -134,7 +142,7 @@ namespace Music_App.Controllers
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Database));
         }
 
         private bool MusicExists(int id)
