@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Music_App.Models;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using Microsoft.Extensions.Configuration;
 
 
 namespace Music_App.Controllers
@@ -20,12 +21,14 @@ namespace Music_App.Controllers
         private static bool isAudioPlaying = false;
         // makes the max a file can be to 3mb 
         private long maxFileSize = 1024 * 1024 * 3; //  = 3 MB
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
+        
         
 
-        public MusicsController(MusicContext context)
+        public MusicsController(MusicContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
 
         // GET: Musics
@@ -59,23 +62,29 @@ namespace Music_App.Controllers
         public async Task<IActionResult> Create(
             [Bind("TrackId,TrackFile,TrackTitle,TrackArtist,TrackLength")] Music music)
         {
-            try
-            {
-                var path = Path.Combine(_config.GetValue<string>("FileStorage")!, "Music");
-                Directory.CreateDirectory(path.Combine(
-                    -_config.GetValue<string>(("FileSorage"!),"Music"));
-
-                await using FileStream fs = new(path, FileMode.Create);
-                await File(music.TrackFile)OpenReadStream(maxFileSize).CopyToAsync(fs);
-
-            }
-            catch
-            {
-                throw;
-            }
             if (ModelState.IsValid)
             {
-                music.TrackFile = TrimPath(music.TrackFile);
+                // Get the base path for file storage from configuration or use default
+                var basePath = _config.GetValue<string>("FileStorage")
+                    ?? Path.Combine(Directory.GetCurrentDirectory(), "FileStorage");
+
+                // Ensure the base directory exists
+                var musicDirectory = Path.Combine(basePath, "MusicFiles");
+
+
+                // Create the directory if it doesn't exist
+                Directory.CreateDirectory(musicDirectory);
+                
+                // Combine base path with the provided file name
+                var fileName = TrimPath(music.TrackFile ?? string.Empty);
+
+                // Ensure the file name is valid
+                var filePath = Path.Combine(musicDirectory, fileName);
+
+                // Save the file path in the database column
+                music.TrackFile = filePath;
+
+                // save the music entry to the database
                 _context.Add(music);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Database));
@@ -108,6 +117,8 @@ namespace Music_App.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,
             [Bind("TrackId,TrackFile,TrackTitle,TrackArtist,TrackLength")] Music music)
+
+
         {
             if (id != music.TrackId)
             {
