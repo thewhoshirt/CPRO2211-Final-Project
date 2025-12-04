@@ -174,7 +174,8 @@ namespace Music_App.Controllers
 
             if (audioFile == null)
             {
-                audioFile = new AudioFileReader(@"C:\Users\Nicoh\Downloads\Future-Technology(chosic.com).mp3");
+                //audioFile = new AudioFileReader(@"C:\Users\Nicoh\Downloads\Future-Technology(chosic.com).mp3");
+                audioFile = new AudioFileReader(@"C:\Users\scemb\Desktop\CPRO Classes\CPRO 2211\Music Files\Piano Sonata No. 14 in C-Sharp Minor, Op. 27 No. 2 Moonlight I. Adagio sostenuto.mp3");
                 output.Init(audioFile);
                 Console.WriteLine("Initialized audioFile.");
             }
