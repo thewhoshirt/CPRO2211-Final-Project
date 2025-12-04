@@ -19,5 +19,7 @@ namespace Music_App.Models
 
         [Required]
         public double TrackLength { get; set; }
+
+        public ICollection<Playlist> Playlists { get; set; } = new List<Playlist>();
     }
 }

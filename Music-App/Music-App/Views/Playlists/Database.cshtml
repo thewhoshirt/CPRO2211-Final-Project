@@ -1,0 +1,49 @@
+﻿@model IEnumerable<Music_App.Models.Playlist>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a class="btn btn-secondary" asp-action="Create">Create New Playlist</a>
+    <a class="btn btn-dark" asp-action="Index">Back to Index</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PlaylistName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PlaylistName)
+                </td>
+                <td>
+                    <button style="font-size: 12px; height: 25px; background-color: mediumblue; border: 1px solid #000; border-radius: 5px;"><a asp-action="EditName" asp-route-id="@item.PlaylistId" style="color:floralwhite;">Edit Playlist Title</a></button> |
+                    <button style="font-size: 12px; height: 25px; background-color: mediumblue; border: 1px solid #000; border-radius: 5px;"><a asp-action="EditMusic" asp-route-id="@item.PlaylistId" style="color:floralwhite;">Edit Songs</a></button> |
+                    <form asp-action="Delete" method="post" asp-route-id="@item.PlaylistId" onsubmit="return confirm('Are you sure you want to delete this item?');" style="display: inline;">
+                        <button type="submit" style="font-size: 12px; height: 25px; color:floralwhite; background-color: red; border: 1px solid #000; border-radius: 5px;">Delete </button> |
+                    </form>
+                    <form asp-action="Index" method="post" asp-route-id="@item.PlaylistId" style="display: inline;">
+                        <input type="hidden" asp-for="@item.PlaylistId" name="PlaylistId" value="@item.PlaylistId"/>
+                        <button type="submit" style="font-size: 12px; height: 25px; color:floralwhite; background-color: mediumpurple; border: 1px solid #000; border-radius: 5px;">Listen to this playlist</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

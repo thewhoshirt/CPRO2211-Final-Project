@@ -1,0 +1,60 @@
+﻿@model Music_App.Models.Playlist
+
+@{
+    ViewData["Title"] = "Edit Music in Playlist";
+    var CurrentPlaylist = ViewBag.InPlaylist;
+}
+
+<h1>Edit</h1>
+
+<h4>@Model.PlaylistName</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div>
+            <h4>Songs in Playlist</h4>
+            <ul>
+                @foreach (var song in CurrentPlaylist)
+                {
+                    <li>@song.TrackTitle by @song.TrackArtist</li>
+                    <form asp-action="DeleteMusic" method="post" onsubmit="return confirm('Are you sure you want to remove this song?');" style="display: inline;">
+                        <input type="hidden" name="musicId" value="@song.TrackId" />
+                        <input type="hidden" name="playlistId" value="@Model.PlaylistId" />
+                        @* <button type="submit" style="font-size: 12px; height: 25px; background-color: red; border: 1px solid #000; border-radius: 5px;">Remove</button> *@
+                    </form>
+                    
+                }
+            </ul>
+        </div>
+        <div>
+            <h4>Add Song to Playlist</h4>
+            <ul>
+                @foreach (var song in ViewBag.Musics)
+                {
+                    @if (!CurrentPlaylist.Contains(song))
+                    {
+                       <li>
+                           @song.TrackTitle by @song.TrackArtist
+                            <form asp-action="EditMusic"   method="post" style="display: inline;">
+                                <input type="hidden" name="musicId" value="@song.TrackId"/>
+                                <input type="hidden" name="playlistId" value="@Model.PlaylistId"/>
+
+                                <button type="submit"  style="font-size: 12px; height: 25px; background-color: mediumseagreen; border: 1px solid #000; border-radius: 5px;">Add</button>
+                            </form>
+                        </li>
+                    }     
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a class="btn btn-secondary" style="margin-top:10px;" asp-action="Database">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,70 @@
+﻿@model Music_App.Models.Playlist
+
+@{
+    ViewData["Title"] = "Index";
+    var InPlaylist = ViewBag.InPlaylist;
+}
+
+<h1>Index</h1>
+
+<p>
+    <a class="btn btn-secondary" asp-controller="Playlists" asp-action="Database">All playlists</a>
+    <a class="btn btn-dark" asp-controller="Musics" asp-action="Database">All songs</a>
+</p>
+
+
+
+@if (InPlaylist != null)
+{
+    <h2>@Model.PlaylistName</h2>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                TrackFile
+            </th>
+            <th>
+                TrackTitle
+            </th>
+            <th>
+                TrackArtist
+            </th>
+            <th>
+                TrackLength
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in InPlaylist)
+        {
+            <tr>
+                <td>
+                    @item.TrackFile
+                </td>
+                <td>
+                    @item.TrackTitle
+                </td>
+                <td>
+                    @item.TrackArtist
+                </td>
+                <td>
+                    @item.TrackLength
+                </td>
+            </tr>
+        }
+        </tbody>
+   
+     
+    </table>
+}
+else
+{
+    <p>Select a playlist</p>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
