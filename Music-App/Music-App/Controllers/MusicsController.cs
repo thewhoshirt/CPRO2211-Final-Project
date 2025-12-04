@@ -9,6 +9,7 @@ using Music_App.Models;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 
+
 namespace Music_App.Controllers
 {
     public class MusicsController : Controller
@@ -17,6 +18,10 @@ namespace Music_App.Controllers
         private AudioFileReader audioFile;
         private readonly MusicContext _context;
         private static bool isAudioPlaying = false;
+        // makes the max a file can be to 3mb 
+        private long maxFileSize = 1024 * 1024 * 3; //  = 3 MB
+        private IConfiguration _config;
+        
 
         public MusicsController(MusicContext context)
         {
@@ -54,6 +59,20 @@ namespace Music_App.Controllers
         public async Task<IActionResult> Create(
             [Bind("TrackId,TrackFile,TrackTitle,TrackArtist,TrackLength")] Music music)
         {
+            try
+            {
+                var path = Path.Combine(_config.GetValue<string>("FileStorage")!, "Music");
+                Directory.CreateDirectory(path.Combine(
+                    -_config.GetValue<string>(("FileSorage"!),"Music"));
+
+                await using FileStream fs = new(path, FileMode.Create);
+                await File(music.TrackFile)OpenReadStream(maxFileSize).CopyToAsync(fs);
+
+            }
+            catch
+            {
+                throw;
+            }
             if (ModelState.IsValid)
             {
                 music.TrackFile = TrimPath(music.TrackFile);
