@@ -56,6 +56,7 @@ namespace Music_App.Controllers
         {
             if (ModelState.IsValid)
             {
+                music.TrackFile = TrimPath(music.TrackFile);
                 _context.Add(music);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Database));
@@ -98,6 +99,7 @@ namespace Music_App.Controllers
             {
                 try
                 {
+                    music.TrackFile = TrimPath(music.TrackFile);
                     _context.Update(music);
                     await _context.SaveChangesAsync();
                 }
@@ -174,8 +176,18 @@ namespace Music_App.Controllers
 
             if (audioFile == null)
             {
-                //audioFile = new AudioFileReader(@"C:\Users\Nicoh\Downloads\Future-Technology(chosic.com).mp3");
-                audioFile = new AudioFileReader(@"C:\Users\scemb\Desktop\CPRO Classes\CPRO 2211\Music Files\Piano Sonata No. 14 in C-Sharp Minor, Op. 27 No. 2 Moonlight I. Adagio sostenuto.mp3");
+                // hardcoded file path for testing purposes
+                //audioFile = new AudioFileReader(@"C:\Users\Nicoh\Downloads\Future-Technology(chosic.com).mp3")
+                //audioFile = new AudioFileReader(@"C:\Users\scemb\Desktop\CPRO Classes\CPRO 2211\Music Files\Piano Sonata No. 14 in C-Sharp Minor, Op. 27 No. 2 Moonlight I. Adagio sostenuto.mp3");
+
+                var track = _context.Musics.FirstOrDefault();
+                if (track == null) return NotFound("No track found in the database.");
+
+                var audioPath = track.TrackFile?.Trim().Trim('"');
+                if (string.IsNullOrWhiteSpace(audioPath) || !System.IO.File.Exists(audioPath))
+                    return NotFound("Audio file path is missing or file not found.");
+
+                audioFile = new AudioFileReader(audioPath);
                 output.Init(audioFile);
                 Console.WriteLine("Initialized audioFile.");
             }
@@ -218,6 +230,16 @@ namespace Music_App.Controllers
             audioFile = null;
             isAudioPlaying = false;
             Console.WriteLine("Playback stopped, resources disposed.");
+        }
+
+        // added to trim path inputs from user so that they read correctly 
+        private static string TrimPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return path;
+            path = path.Trim();
+            if (path.Length >= 2 && path.StartsWith("\"") && path.EndsWith("\""))
+                path = path.Substring(1, path.Length - 2);
+            return path.Trim();
         }
     }
 }
