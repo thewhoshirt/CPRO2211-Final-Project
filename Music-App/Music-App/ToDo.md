@@ -2,7 +2,7 @@
 - [X] Getting Audio to Play
 - [ ] Player Page
 - [ ] Playlist Creation (Maybe)
-- [ ] Rewind/Fast-Forward & Pause Functionality 
+- [x] Rewind/Fast-Forward & Pause Functionality 
 - [ ] URL - > able to get music from URL
 - [ ] Styling 
 - [ ] Track length display
