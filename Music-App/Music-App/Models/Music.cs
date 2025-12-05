@@ -1,7 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿using System.ComponentModel.DataAnnotations; // import DataAnnotations so validations can be used
+/*
+ * Add the model the models namespace
+ */
 namespace Music_App.Models
 {
+    /*
+     * Create the Music model
+     */
     public class Music
     {
         [Key]
