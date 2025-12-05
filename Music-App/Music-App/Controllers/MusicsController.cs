@@ -199,8 +199,8 @@ namespace Music_App.Controllers
             return (_context.Musics?.Any(e => e.TrackId == id)).GetValueOrDefault();
         }
         
-        [HttpPost("play")]
-        public IActionResult Play()
+        [HttpPost("play/{trackId}")]
+        public IActionResult Play(int trackId)
         {
             if (output == null)
             {
@@ -209,34 +209,24 @@ namespace Music_App.Controllers
                 Console.WriteLine("Initialized output object.");
             }
 
-            if (audioFile == null)
+            if (audioFile != null)
             {
-                // hardcoded file path for testing purposes
-                //audioFile = new AudioFileReader(@"C:\Users\Nicoh\Downloads\Future-Technology(chosic.com).mp3")
-                //audioFile = new AudioFileReader(@"C:\Users\scemb\Desktop\Music Files\Piano Sonata No. 14 in C-Sharp Minor, Op. 27 No. 2 Moonlight I. Adagio sostenuto.mp3");
-
-                var track = _context.Musics.FirstOrDefault();
-                if (track == null) return NotFound("No track found in the database.");
-
-                var audioPath = track.TrackFile?.Trim().Trim('"');
-                if (string.IsNullOrWhiteSpace(audioPath) || !System.IO.File.Exists(audioPath))
-                    return NotFound("Audio file path is missing or file not found.");
-
-                audioFile = new AudioFileReader(audioPath);
-                output.Init(audioFile);
-                Console.WriteLine("Initialized audioFile.");
+                audioFile.Dispose();  // Dispose of the previous file if any
             }
 
-            if (output.PlaybackState != PlaybackState.Playing)
-            {
-                output.Play();
-                isAudioPlaying = true;
-                Console.WriteLine("Audio started playing.");
-            }
-            else
-            {
-                Console.WriteLine("Audio is already playing.");
-            }
+            var track = _context.Musics.FirstOrDefault(m => m.TrackId == trackId);
+            if (track == null) return NotFound("Track not found.");
+
+            var audioPath = track.TrackFile?.Trim().Trim('"');
+            if (string.IsNullOrWhiteSpace(audioPath) || !System.IO.File.Exists(audioPath))
+                return NotFound("Audio file path is missing or file not found.");
+
+            audioFile = new AudioFileReader(audioPath);
+            output.Init(audioFile);
+            output.Play();
+            isAudioPlaying = true;
+
+            Console.WriteLine("Audio started playing.");
             return Ok("Audio is playing");
         }
         
