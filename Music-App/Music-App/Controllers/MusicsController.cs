@@ -151,7 +151,36 @@ namespace Music_App.Controllers
             {
                 try
                 {
-                    music.TrackFile = TrimPath(music.TrackFile);
+
+                    // Get the base path for file storage from configuration or use default
+                    var basePath = _config.GetValue<string>("FileStorage")
+                        ?? Path.Combine(Directory.GetCurrentDirectory(), "FileStorage");
+
+                    // Ensure the base directory exists
+                    var musicDirectory = Path.Combine(basePath, "MusicFiles");
+
+
+                    // Create the directory if it doesn't exist
+                    Directory.CreateDirectory(musicDirectory);
+
+                    // Combine base path with the provided file name
+                    var fileName = TrimPath(music.TrackFile ?? string.Empty);
+
+                    // Ensure the file name is valid
+                    var filePath = Path.Combine(musicDirectory, fileName);
+
+                    // Save the file path in the database column
+                    music.TrackFile = filePath;
+
+                    /*
+                     * Get the track length data from the file
+                     */
+                    using (var reader = new AudioFileReader(filePath))
+                    {
+                        duration = reader.TotalTime; // get total time in seconds
+                        Console.WriteLine($"Track Length: {duration.TotalSeconds} seconds");
+                    }
+                    music.TrackLength = Math.Round(duration.TotalMinutes, 2); // save the time in minutes to 2 decimal places
                     _context.Update(music);
                     await _context.SaveChangesAsync();
                 }
