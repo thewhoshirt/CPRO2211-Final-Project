@@ -1,30 +1,35 @@
-﻿@model IEnumerable<Music_App.Models.Music>
+﻿<!-- import the music model as IEnumerable so that it can iterated over -->
+@model IEnumerable<Music_App.Models.Music>
 @{
     ViewData["Title"] = "Index";
 }
-
 <h1>Index</h1>
+<!-- buttons to send the user to the database view or the playlists view when clicked -->
 <nav style="margin-bottom: 10px;">
     <a class="btn btn-secondary" asp-action="Database">Database</a>
     <a class="btn btn-secondary" asp-controller="Playlists" asp-action="Index">Playlists</a>
 </nav>
+<!-- table that shows the important info about the entities in the database -->
 <table class="table">
+    <!-- table headers -->
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TrackTitle)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrackArtist)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrackLength)
-            </th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.TrackTitle)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TrackArtist)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TrackLength)
+        </th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    <!-- iterate over each entity in the database and display the desired info in the table -->
+    @foreach (var item in Model)
+    {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.TrackTitle)
@@ -35,29 +40,40 @@
             <td>
                 @Html.DisplayFor(modelItem => item.TrackLength)
             </td>
+            <!-- play button for each entity which allows the user to play a specific song -->
             <td>
                 <button type="button" style="font-size: 12px; height: 25px; color:floralwhite; background-color: green; border: 1px solid #000; border-radius: 5px; margin-right: 15px;"
                         onclick="playAudio(@item.TrackId)">Play</button>
             </td>
         </tr>
-}
+    }
     </tbody>
 </table>
+<!-- show the progress of the track playing -->
 <div style="margin-bottom:10px">
     <progress id="playback-progress" value="0" max="100"></progress>
     <span id="current-time">0:00</span> / <span id="total-time">0:00</span>
 </div>
 <div>
-    <p>Playing: <span id="trackInfo"></span></p>
+    <p>Playing: <span id="trackInfo"></span></p> <!-- show song and artist that is playing -->
 </div>
+<!-- buttons to control the various things associated with playing audio (fast-forward, pause, volume, etc.) -->
 <button class="btn btn-outline-secondary" onclick="rewindAudio()"><<</button>
 <button class="btn btn-outline-secondary" onclick="pauseAudio()">Pause</button>
-<button class="btn btn-danger" onclick="stopAudio()">Stop</button>
+<button class="btn btn-danger" onclick="stopAudio()">Stop</button> <!-- this button closes the streams and frees resources -->
 <button class="btn btn-outline-secondary" onclick="forwardAudio()">>></button>
 <button class="btn btn-outline-secondary" onclick="raiseAudio()">Vol up</button>
 <button class="btn btn-outline-secondary" onclick="lowerAudio()">Vol dwn</button>
 <div>
+    <!-- 
+    javascript functions to handle the button clicked events for the audio controls, the actual logic of the operations
+    is handled in the Musics controller
+     -->
     <script>
+            /*
+            * function that handles the play button, it does this by sending the id of the song selected to the controller
+            * and then updates the playing status to show the song and artist playing. Otherwise, it logs the errors
+            */
             function playAudio(trackid) {
             fetch(`/play/${trackid}`, {
                 method: 'POST'
@@ -73,7 +89,9 @@
                 })
                 .catch(err => console.error('Error:', err));
         }
-
+            /*
+            * function that handles the stop button and sets the playing status to an empty string, otherwise it logs the errors
+            */
             function stopAudio() {
             fetch('/stop', {
                 method: 'POST'
@@ -84,7 +102,10 @@
                 }
             }).catch(err => console.error('Error:', err));
         }
-
+            /*
+            * function that handles the pause button, if audio is already paused then the controller will recognize
+            * that condition and resume playback if the pause button is clicked again. Otherwise, it logs the errors
+             */
             function pauseAudio() {
             fetch('/pause', {
                 method: 'POST'
@@ -94,7 +115,9 @@
                 }
             }).catch(err => console.error('Error:', err));
         }
-
+            /*
+            * function to handle the rewind button, otherwise it logs the errors
+            */
             function rewindAudio() {
             fetch('/rewind', {
                 method: 'POST'
@@ -104,7 +127,9 @@
                 }
             }).catch(err => console.error('Error:', err));
         }
-
+            /*
+            * function to handle the fast-forward button, otherwise it logs the errors
+            */
             function forwardAudio() {
             fetch('/forward', {
                 method: 'POST'
@@ -114,26 +139,29 @@
                 }
             }).catch(err => console.error('Error:', err));
         }
-
-
+        /*
+        * function that formats the time stamp for the track progress bar
+        */
         function formatTime(seconds) {
-            var mins = Math.floor(seconds / 60);
-            var secs = Math.floor(seconds % 60);
+            var mins = Math.floor(seconds / 60); // round to the nearest minute
+            var secs = Math.floor(seconds % 60); // round to the nearest second
             return mins + ':' + (secs < 10 ? '0' : '') + secs;
         }
-
+        /*
+        * function that gets the playback progress and updates the bar as well as time stamp every second
+        */
         setInterval(function () {
             $.getJSON('/Musics/GetPlaybackProgress', function (data) {
-                if(data.currentTime != null || data.totalTime != null) {
+                if(data.currentTime != null || data.totalTime != null) { // make sure that audio is playing first
                     $('#playback-progress').val(data.percentage);
                     $('#current-time').text(formatTime(data.currentTime));
                     $('#total-time').text(formatTime(data.totalTime));   
                 }
-               
             });
         }, 1000);
-
-        
+            /*
+            * function to handle the raise volume button, otherwise it logs the errors
+            */
             function raiseAudio() {
                 fetch('/up', {
                     method: 'POST'
@@ -143,7 +171,9 @@
                     }
                 }).catch(err => console.error('Error:', err));
             }
-            
+            /*
+            * function to handle the lower volume button, otherwise it logs the errors
+             */
             function lowerAudio() {
                 fetch('/down', {
                     method: 'POST'
