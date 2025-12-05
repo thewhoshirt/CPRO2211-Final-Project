@@ -1,22 +1,21 @@
-﻿@model Music_App.Models.Music
-
+﻿<!-- import the music model so that an entity can be added to the database -->
+@model Music_App.Models.Music
 @{
     ViewData["Title"] = "Create";
 }
-
 <h1>Create</h1>
-
 <h4>Music</h4>
 <hr />
+<!-- form to get the information required to create a new Music entity -->
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="TrackFile" class="control-label"></label>
-                <input asp-for="TrackFile" class="form-control" type="file" accept=".mp3" />
+                <!-- file picker menu -->
+                <input asp-for="TrackFile" class="form-control" type="file" accept=".mp3" /> <!-- only accept .mp3 files -->
                 <span asp-validation-for="TrackFile" class="text-danger"></span>
-                
             </div>
             <div class="form-group">
                 <label asp-for="TrackTitle" class="control-label"></label>
@@ -28,17 +27,18 @@
                 <input asp-for="TrackArtist" class="form-control" />
                 <span asp-validation-for="TrackArtist" class="text-danger"></span>
             </div>
+            <!-- button to save the data and add it the new entity to the database -->
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" style="margin-top:10px;" />
             </div>
         </form>
     </div>
 </div>
-
+<!-- button to send the user back to the database view when clicked -->
 <div>
     <a class="btn btn-secondary" style="margin-top:10px;" asp-action="Database">Back to List</a>
 </div>
-
+<!-- get the info from the database asynchronously -->
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
