@@ -1,31 +1,30 @@
 ﻿@model Music_App.Models.Music
-
 @{
     ViewData["Title"] = "Edit";
 }
-
 <h1>Edit</h1>
-
 <h4>Music</h4>
 <hr />
+<!-- Form for editing the selected music files info -->
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
+            <!-- do not show or allow the user to edit the track id -->
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="TrackId" />
+            <input type="hidden" asp-for="TrackId"/>
             <div class="form-group">
                 <label asp-for="TrackFile" class="control-label"></label>
-                <input asp-for="TrackFile" class="form-control" type="file" accept=".mp3" />
+                <input asp-for="TrackFile" class="form-control" type="file" accept=".mp3"/> <!-- only accept .mp3 files -->
                 <span asp-validation-for="TrackFile" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="TrackTitle" class="control-label"></label>
-                <input asp-for="TrackTitle" class="form-control" />
+                <input asp-for="TrackTitle" class="form-control"/>
                 <span asp-validation-for="TrackTitle" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="TrackArtist" class="control-label"></label>
-                <input asp-for="TrackArtist" class="form-control" />
+                <input asp-for="TrackArtist" class="form-control"/>
                 <span asp-validation-for="TrackArtist" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -34,11 +33,11 @@
         </form>
     </div>
 </div>
-
+<!-- button to send the user back to the database view when clicked -->
 <div>
     <a class="btn btn-secondary" style="margin-top:10px;" asp-action="Database">Back to List</a>
 </div>
-
+<!-- get the info from the database asynchronously -->
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
