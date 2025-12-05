@@ -232,7 +232,7 @@ namespace Music_App.Controllers
             output.Play();
             isAudioPlaying = true;
             Console.WriteLine("Audio started playing.");
-            return Ok("Audio is playing");
+            return Ok(new { message = "Audio is playing", trackTitle = track.TrackTitle, trackArtist = track.TrackArtist });
         }
         
         [HttpPost("stop")]

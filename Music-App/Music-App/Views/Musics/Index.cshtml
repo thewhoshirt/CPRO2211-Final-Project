@@ -50,27 +50,36 @@
 
 <div>
     <script>
-        function playAudio(trackid) {
+            // Updated playAudio function to handle the response and update the UI
+            function playAudio(trackid) {
             fetch(`/play/${trackid}`, {
                 method: 'POST'
-            }).then(response => {
-                if (response.ok) {
-                    console.log('Audio is playing');
-                }
-            }).catch(err => console.error('Error:', err));
+            })
+                .then(response => response.json()) // Parse the response as JSON
+                .then(data => {
+                    if (data.message === "Audio is playing") {
+                        // Update the "Playing:" text with the track title and artist
+                        document.getElementById('trackInfo').innerText = `${data.trackTitle} by ${data.trackArtist}`;
+                        console.log('Audio is playing');
+                    } else {
+                        console.error('Error: Audio could not be started');
+                    }
+                })
+                .catch(err => console.error('Error:', err));
         }
 
-        function stopAudio() {
+            function stopAudio() {
             fetch('/stop', {
                 method: 'POST'
             }).then(response => {
                 if (response.ok) {
                     console.log('Audio stopped');
+                    document.getElementById('trackInfo').innerText = '';  // Reset the track info when stopped
                 }
             }).catch(err => console.error('Error:', err));
         }
 
-        function pauseAudio() {
+            function pauseAudio() {
             fetch('/pause', {
                 method: 'POST'
             }).then(response => {
@@ -80,7 +89,7 @@
             }).catch(err => console.error('Error:', err));
         }
 
-        function rewindAudio() {
+            function rewindAudio() {
             fetch('/rewind', {
                 method: 'POST'
             }).then(response => {
@@ -90,16 +99,19 @@
             }).catch(err => console.error('Error:', err));
         }
 
-        function forwardAudio() {
+            function forwardAudio() {
             fetch('/forward', {
                 method: 'POST'
             }).then(response => {
                 if (response.ok) {
-                    console.log('Audio rewound');
+                    console.log('Audio fast-forwarded');
                 }
             }).catch(err => console.error('Error:', err));
         }
     </script>
+    <div>
+        <p>Playing: <span id="trackInfo"></span></p>
+    </div>
     <button class="btn btn-outline-secondary" onclick="rewindAudio()"><<</button>
     <button class="btn btn-outline-secondary" onclick="pauseAudio()">Pause</button>
     <button class="btn btn-danger" onclick="stopAudio()">Stop</button>
