@@ -7,3 +7,4 @@
 - [ ] Styling 
 - [ ] Track length display
 - [ ] volume control
+- [X] only accepts mp3 files
