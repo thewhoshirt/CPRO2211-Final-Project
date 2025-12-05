@@ -291,6 +291,23 @@ namespace Music_App.Controllers
             return Ok("Audio rewound");
         }
         
+        [HttpPost("forward")]
+        public IActionResult Forward()
+        {
+            Console.WriteLine("Forward button pressed.");
+
+            if (output == null || !isAudioPlaying)
+            {
+                Console.WriteLine("No audio is currently playing.");
+                return BadRequest("No audio is currently playing.");
+            }
+            long samplerate = 48000;
+            long seconds = 10;
+            audioFile.Position += ((seconds * 10) * samplerate); // fast-forward ~10 seconds based on sample rate (actually 13?)
+            Console.WriteLine("Fast-forwarded successfully.");
+            return Ok("Audio fast-forwarded");
+        }
+        
         private void OnPlaybackStopped(object sender, StoppedEventArgs args)
         {
             output?.Dispose();

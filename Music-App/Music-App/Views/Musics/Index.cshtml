@@ -89,8 +89,19 @@
                 }
             }).catch(err => console.error('Error:', err));
         }
+
+        function forwardAudio() {
+            fetch('/forward', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Audio rewound');
+                }
+            }).catch(err => console.error('Error:', err));
+        }
     </script>
     <button class="btn btn-outline-secondary" onclick="rewindAudio()"><<</button>
     <button class="btn btn-outline-secondary" onclick="pauseAudio()">Pause</button>
     <button class="btn btn-danger" onclick="stopAudio()">Stop</button>
+    <button class="btn btn-outline-secondary" onclick="forwardAudio()">>></button>
 </div>
