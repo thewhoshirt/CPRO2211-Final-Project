@@ -18,6 +18,7 @@ namespace Music_App.Controllers
         private static WaveOutEvent output;
         private static AudioFileReader audioFile;
         private static int sampleRate;
+        public static TimeSpan duration;
         private static bool isAudioPlaying = false;
         private readonly MusicContext _context;
         // makes the max a file can be to 3mb 
@@ -89,6 +90,16 @@ namespace Music_App.Controllers
 
                 // Save the file path in the database column
                 music.TrackFile = filePath;
+                
+                /*
+                 * Get the track length data from the file
+                 */
+                using (var reader = new AudioFileReader(filePath))
+                {
+                    duration = reader.TotalTime; // get total time in seconds
+                    Console.WriteLine($"Track Length: {duration.TotalSeconds} seconds");
+                }
+                music.TrackLength = Math.Round(duration.TotalMinutes,2); // save the time in minutes to 2 decimal places
 
                 // save the music entry to the database
                 _context.Add(music);
