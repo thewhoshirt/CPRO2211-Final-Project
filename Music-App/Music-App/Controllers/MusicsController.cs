@@ -247,6 +247,33 @@ namespace Music_App.Controllers
             return Ok("Audio stopped");
         }
         
+        [HttpPost("pause")]
+        public IActionResult Pause()
+        {
+            Console.WriteLine("Puase button pressed.");
+
+            if (output == null)
+            {
+                Console.WriteLine("No audio is currently playing.");
+                return BadRequest("No audio is currently playing.");
+            }
+
+            if (!isAudioPlaying)
+            {
+                output.Play();
+                isAudioPlaying = true;
+                Console.WriteLine("Audio is playing.");
+                return Ok("Audio resumed");
+            }
+            else
+            {
+                output.Pause();
+                isAudioPlaying = false;
+                Console.WriteLine("Audio paused successfully.");
+                return Ok("Audio paused");
+            }
+        }
+        
         private void OnPlaybackStopped(object sender, StoppedEventArgs args)
         {
             output?.Dispose();

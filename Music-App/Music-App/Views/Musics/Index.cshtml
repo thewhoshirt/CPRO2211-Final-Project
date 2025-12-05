@@ -69,6 +69,17 @@
                 }
             }).catch(err => console.error('Error:', err));
         }
+
+        function pauseAudio() {
+            fetch('/pause', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Audio paused');
+                }
+            }).catch(err => console.error('Error:', err));
+        }
     </script>
+    <button class="btn btn-outline-secondary" onclick="pauseAudio()">Pause</button>
     <button class="btn btn-danger" onclick="stopAudio()">Stop</button>
 </div>
