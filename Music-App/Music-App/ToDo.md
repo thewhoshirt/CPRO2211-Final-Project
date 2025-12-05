@@ -1,10 +1,10 @@
 - [X] File Picker 
 - [X] Getting Audio to Play
 - [ ] Player Page
-- [ ] Playlist Creation (Maybe)
+- [x] Playlist Creation (Maybe)
 - [x] Rewind/Fast-Forward & Pause Functionality 
 - [ ] URL - > able to get music from URL
 - [ ] Styling 
-- [ ] Track length display
+- [x] Track length display
 - [x] volume control
 - [X] only accepts mp3 files

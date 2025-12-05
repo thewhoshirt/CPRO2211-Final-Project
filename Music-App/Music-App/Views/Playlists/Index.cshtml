@@ -8,9 +8,9 @@
 <h1>Index</h1>
 
 <nav>
-    <a class="btn btn-secondary" asp-controller="Playlists" asp-action="Database">All playlists</a>
     <a class="btn btn-dark" asp-controller="Musics" asp-action="Index">Home</a>
     <a class="btn btn-dark" asp-controller="Musics" asp-action="Database">All songs</a>
+    <a class="btn btn-secondary" asp-controller="Playlists" asp-action="Database">All playlists</a>
 </nav>
 
 
@@ -22,16 +22,10 @@
     <thead>
         <tr>
             <th>
-                TrackFile
-            </th>
-            <th>
                 TrackTitle
             </th>
             <th>
                 TrackArtist
-            </th>
-            <th>
-                TrackLength
             </th>
             <th></th>
         </tr>
@@ -41,16 +35,10 @@
         {
             <tr>
                 <td>
-                    @item.TrackFile
-                </td>
-                <td>
                     @item.TrackTitle
                 </td>
                 <td>
                     @item.TrackArtist
-                </td>
-                <td>
-                    @item.TrackLength
                 </td>
             </tr>
         }
@@ -64,8 +52,100 @@ else
     <p>Select a playlist</p>
 }
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+<div style="margin-bottom:10px">
+    <progress id="playback-progress" value="0" max="100"></progress>
+    <span id="current-time">0:00</span> / <span id="total-time">0:00</span>
+</div>
+<div>
+    <p>Playing: <span id="trackInfo"></span></p>
+</div>
+<button class="btn btn-success" onclick="playPlaylist(@Model.PlaylistId)">Play</button>
+<button class="btn btn-outline-secondary" onclick="rewindAudio()"><<</button>
+<button class="btn btn-outline-secondary" onclick="pauseAudio()">Pause</button>
+<button class="btn btn-danger" onclick="stopAudio()">Stop</button>
+<button class="btn btn-outline-secondary" onclick="forwardAudio()">>></button>
+<div>
+    <script>
+            function playPlaylist(playlistid) {
+            fetch(`/playlist/${playlistid}`, {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === "Audio is playing") {
+                        document.getElementById('trackInfo').innerText = `${data.trackTitle} by ${data.trackArtist}`;
+                        console.log('Audio is playing');
+                    } else {
+                        console.error('Error: Audio could not be started');
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+        }
+
+            function stopAudio() {
+            fetch('/stop', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Audio stopped');
+                    document.getElementById('trackInfo').innerText = '';  // Reset the track info when stopped
+                }
+            }).catch(err => console.error('Error:', err));
+        }
+
+            function pauseAudio() {
+            fetch('/pause', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Audio paused');
+                }
+            }).catch(err => console.error('Error:', err));
+        }
+
+            function rewindAudio() {
+            fetch('/rewind', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Audio rewound');
+                }
+            }).catch(err => console.error('Error:', err));
+        }
+
+            function forwardAudio() {
+            fetch('/forward', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Audio fast-forwarded');
+                }
+            }).catch(err => console.error('Error:', err));
+        }
+
+
+        function formatTime(seconds) {
+            var mins = Math.floor(seconds / 60);
+            var secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
+        setInterval(function () {
+            $.getJSON('/Musics/GetPlaybackProgress', function (data) {
+                if(data.currentTime != null || data.totalTime != null) {
+                    $('#playback-progress').val(data.percentage);
+                    $('#current-time').text(formatTime(data.currentTime));
+                    $('#total-time').text(formatTime(data.totalTime));
+                    if(data.trackArtist != undefined && data.trackTitle != undefined){
+                        document.getElementById('trackInfo').innerText = `${data.trackTitle} by ${data.trackArtist}`;
+                    }
+                    
+                }
+            });
+        }, 1000)
+
+
+    </script>
+</div>
+
+

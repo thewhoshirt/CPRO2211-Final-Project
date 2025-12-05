@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Music_App.Models;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using Microsoft.Extensions.Configuration;
+using NuGet.DependencyResolver;
 
 
 namespace Music_App.Controllers
@@ -24,8 +25,12 @@ namespace Music_App.Controllers
         // makes the max a file can be to 3mb 
         private long maxFileSize = 1024 * 1024 * 3; //  = 3 MB
         private readonly IConfiguration _config;
-        
-        
+
+        private static List<string> playlistFiles = new List<string>();
+        private static List<Music> currentPlaylist = new List<Music>();
+        private static int currentSongIndex = 0;
+
+
 
         public MusicsController(MusicContext context, IConfiguration config)
         {
@@ -81,7 +86,7 @@ namespace Music_App.Controllers
 
                 // Create the directory if it doesn't exist
                 Directory.CreateDirectory(musicDirectory);
-                
+
                 // Combine base path with the provided file name
                 var fileName = TrimPath(music.TrackFile ?? string.Empty);
 
@@ -90,7 +95,7 @@ namespace Music_App.Controllers
 
                 // Save the file path in the database column
                 music.TrackFile = filePath;
-                
+
                 /*
                  * Get the track length data from the file
                  */
@@ -99,7 +104,7 @@ namespace Music_App.Controllers
                     duration = reader.TotalTime; // get total time in seconds
                     Console.WriteLine($"Track Length: {duration.TotalSeconds} seconds");
                 }
-                music.TrackLength = Math.Round(duration.TotalMinutes,2); // save the time in minutes to 2 decimal places
+                music.TrackLength = Math.Round(duration.TotalMinutes, 2); // save the time in minutes to 2 decimal places
 
                 // save the music entry to the database
                 _context.Add(music);
@@ -210,7 +215,7 @@ namespace Music_App.Controllers
         {
             return (_context.Musics?.Any(e => e.TrackId == id)).GetValueOrDefault();
         }
-        
+
         [HttpPost("play/{trackId}")]
         public IActionResult Play(int trackId)
         {
@@ -246,7 +251,7 @@ namespace Music_App.Controllers
             Console.WriteLine("Audio started playing.");
             return Ok(new { message = "Audio is playing", trackTitle = track.TrackTitle, trackArtist = track.TrackArtist });
         }
-        
+
         [HttpPost("stop")]
         public IActionResult Stop()
         {
@@ -259,11 +264,15 @@ namespace Music_App.Controllers
             }
 
             output.Stop();
+            audioFile = null;
+            playlistFiles.Clear();
+            currentPlaylist.Clear();
+            currentSongIndex = 0;
             isAudioPlaying = false;
             Console.WriteLine("Audio stopped successfully.");
             return Ok("Audio stopped");
         }
-        
+
         [HttpPost("pause")]
         public IActionResult Pause()
         {
@@ -290,7 +299,7 @@ namespace Music_App.Controllers
                 return Ok("Audio paused");
             }
         }
-        
+
         [HttpPost("rewind")]
         public IActionResult Rewind()
         {
@@ -306,7 +315,7 @@ namespace Music_App.Controllers
             Console.WriteLine("Rewinded successfully.");
             return Ok("Audio rewound");
         }
-        
+
         [HttpPost("forward")]
         public IActionResult Forward()
         {
@@ -322,6 +331,7 @@ namespace Music_App.Controllers
             Console.WriteLine("Fast-forwarded successfully.");
             return Ok("Audio fast-forwarded");
         }
+
         
         /// <summary>
         /// Raise the volume of the audioFileReader (open audio file) when the Vol up button is pressed
@@ -392,5 +402,103 @@ namespace Music_App.Controllers
                 path = path.Substring(1, path.Length - 2);
             return path.Trim();
         }
-    }
+
+        // sets the time progress bar
+        public ActionResult GetPlaybackProgress()
+        {    
+
+            if (audioFile != null)
+            {
+                // Get current time in seconds and total duration in seconds
+                double currentTime = audioFile.CurrentTime.TotalSeconds;
+                double totalTime = audioFile.TotalTime.TotalSeconds;
+                // Calculate percentage 
+                int percentage = totalTime > 0 ? (int)((currentTime / totalTime) * 100) : 0;
+
+                if (playlistFiles.Count > 0)
+                {
+                    var TrackTitle = currentPlaylist[currentSongIndex].TrackTitle;
+                    var TrackArtist = currentPlaylist[currentSongIndex].TrackArtist;
+                    return Json(new { currentTime = currentTime, totalTime = totalTime, percentage = percentage, trackTitle = TrackTitle, trackArtist = TrackArtist });
+                }
+                return Json(new { currentTime = currentTime, totalTime = totalTime, percentage = percentage });
+
+            }
+            return Json(new { currentTime = 0, totalTime = 0, percentage = 0 });
+        }
+
+        // start playlist
+        [HttpPost("playlist/{playlistId}")]
+        public ActionResult PlayPlaylist(int PlaylistId)
+        {
+            playlistFiles.Clear();
+            currentPlaylist.Clear();
+            currentSongIndex = 0;
+            var playlists = _context.Playlists.Where(p => p.PlaylistId == PlaylistId).SelectMany(m => m.MusicList).ToList();
+
+            foreach (var item in playlists)
+            {
+                playlistFiles.Add(item.TrackFile.ToString());
+                currentPlaylist.Add(item);
+            }
+
+            // Initialize playback
+            PlayNextSong();
+
+            // Return JSON so client can parse reliably
+            return Ok(new { message = "Playlist started", trackCount = playlistFiles.Count });
+        }
+
+
+        private void PlayNextSong()
+        {
+            if (currentSongIndex < playlistFiles.Count)
+            {
+                // Dispose previous output/audio if present
+                output?.Dispose();
+                audioFile?.Dispose();
+
+                string filePath = playlistFiles[currentSongIndex];
+
+                using (var reader = new Mp3FileReader(filePath))
+                {
+                    sampleRate = reader.Mp3WaveFormat.SampleRate;
+                    Console.WriteLine("Sample Rate: " + sampleRate);
+                }
+
+                audioFile = new AudioFileReader(filePath);
+
+                output = new WaveOutEvent(); // Or DirectSoundOut
+                output.Init(audioFile);
+
+                // For playlist playback we want this handler to advance to next track when natural end occurs.
+                output.PlaybackStopped -= OnPlaybackPlaylistStopped;
+                output.PlaybackStopped += OnPlaybackPlaylistStopped;
+
+                output.Play();
+
+                // IMPORTANT: mark audio as playing so Stop/Pause endpoints work
+                isAudioPlaying = true;
+
+                Console.WriteLine($"Playing playlist track #{currentSongIndex}: {filePath}");
+            }
+            else
+            {
+                // playlist finished — ensure state cleared
+                isAudioPlaying = false;
+                playlistFiles.Clear();
+                currentPlaylist.Clear();
+                currentSongIndex = 0;
+                Console.WriteLine("Playlist finished.");
+            }
+        }
+
+        private void OnPlaybackPlaylistStopped(object sender, StoppedEventArgs e)
+        {
+            currentSongIndex++;
+            PlayNextSong();
+        }
+
+
+    } 
 }
