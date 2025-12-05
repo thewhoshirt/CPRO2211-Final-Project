@@ -1,20 +1,20 @@
-﻿@model Music_App.Models.Playlist
-
+﻿<!-- import the playlist model -->
+@model Music_App.Models.Playlist
 @{
     ViewData["Title"] = "Index";
-    var InPlaylist = ViewBag.InPlaylist;
+    var InPlaylist = ViewBag.InPlaylist; // get the songs in the first playlist since thats the default index page
 }
-
 <h1>Index</h1>
-
+<!-- buttons to let the users go back the main page, the database, or the playlist database views -->
 <nav>
     <a class="btn btn-dark" asp-controller="Musics" asp-action="Index">Home</a>
     <a class="btn btn-dark" asp-controller="Musics" asp-action="Database">All songs</a>
     <a class="btn btn-secondary" asp-controller="Playlists" asp-action="Database">All playlists</a>
 </nav>
-
-
-
+<!--
+if the playlist is not empty, create a table that shows the songs in the playlist as a table that shows the title, artist, and track length
+otherwise tell the user to select a playlist
+-->
 @if (InPlaylist != null)
 {
     <h2>@Model.PlaylistName</h2>
@@ -48,15 +48,16 @@
             </tr>
         }
         </tbody>
-   
-     
     </table>
 }
 else
 {
     <p>Select a playlist</p>
 }
-
+<!-- 
+with the exception of using the playlistID instead of the trackID, the following code is identical to the index page
+of the Musics controller
+-->
 <div style="margin-bottom:10px">
     <progress id="playback-progress" value="0" max="100"></progress>
     <span id="current-time">0:00</span> / <span id="total-time">0:00</span>
@@ -173,5 +174,3 @@ else
 
     </script>
 </div>
-
-
