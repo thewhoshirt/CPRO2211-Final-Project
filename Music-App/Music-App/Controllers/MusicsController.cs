@@ -348,6 +348,31 @@ namespace Music_App.Controllers
             return Ok("Volume raised");
         }
         
+        /// <summary>
+        /// Decrease the volume of the audioFileReader (open audio file) when the Vol down button is pressed
+        /// ranges from 0.0f to 1.0f, 0.1f (10%) increments were chosen as a sane default but anything less than 1.0f will work
+        /// </summary>
+        /// <returns>Ok when volume is lowered or BadRequest when volume has reached the limit</returns>
+        [HttpPost("down")]
+        public IActionResult Down()
+        {
+            Console.WriteLine("Volume down button pressed.");
+            if (output == null || !isAudioPlaying)
+            {
+                Console.WriteLine("No audio is currently playing.");
+                return BadRequest("No audio is currently playing.");
+            }
+
+            if (audioFile.Volume <= 0.0f)
+            {
+                audioFile.Volume = 0.0f; // if the volume goes below 0 set to 0%
+                return BadRequest("Volume cannot go below 0");
+            }
+            audioFile.Volume -= 1 / 10.0f; // decrease volume by 0.1
+            Console.WriteLine("Volume lowered successfully.");
+            return Ok("Volume raised");
+        }
+        
         private void OnPlaybackStopped(object sender, StoppedEventArgs args)
         {
             output?.Dispose();
