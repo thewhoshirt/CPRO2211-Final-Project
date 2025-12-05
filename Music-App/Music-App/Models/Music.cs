@@ -9,6 +9,7 @@ namespace Music_App.Models
         public int TrackId { get; set; }
 
         [Required]
+        [RegularExpression(@"(?i).*\.mp3$", ErrorMessage = "TrackFile must be a valid .mp3 file")]
         public string TrackFile { get; set; }
 
         [Required]
