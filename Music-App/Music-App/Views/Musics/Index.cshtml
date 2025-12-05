@@ -54,6 +54,7 @@
 <button class="btn btn-outline-secondary" onclick="pauseAudio()">Pause</button>
 <button class="btn btn-danger" onclick="stopAudio()">Stop</button>
 <button class="btn btn-outline-secondary" onclick="forwardAudio()">>></button>
+<button class="btn btn-outline-secondary" onclick="raiseAudio()">Vol up</button>
 <div>
     <script>
             function playAudio(trackid) {
@@ -112,5 +113,14 @@
                 }
             }).catch(err => console.error('Error:', err));
         }
+            function raiseAudio() {
+                fetch('/up', {
+                    method: 'POST'
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('Volume raised');
+                    }
+                }).catch(err => console.error('Error:', err));
+            }
     </script>
 </div>

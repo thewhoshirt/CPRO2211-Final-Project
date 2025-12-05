@@ -322,6 +322,21 @@ namespace Music_App.Controllers
             return Ok("Audio fast-forwarded");
         }
         
+        [HttpPost("up")]
+        public IActionResult Up()
+        {
+            Console.WriteLine("Volume up button pressed.");
+
+            if (output == null || !isAudioPlaying)
+            {
+                Console.WriteLine("No audio is currently playing.");
+                return BadRequest("No audio is currently playing.");
+            }
+            audioFile.Volume += 0.1f;
+            Console.WriteLine("Volume raised successfully.");
+            return Ok("Volume raised");
+        }
+        
         private void OnPlaybackStopped(object sender, StoppedEventArgs args)
         {
             output?.Dispose();
