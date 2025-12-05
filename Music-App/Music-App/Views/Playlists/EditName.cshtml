@@ -1,13 +1,12 @@
-﻿@model Music_App.Models.Playlist
-
+﻿<!-- import the playlist model -->
+@model Music_App.Models.Playlist
 @{
     ViewData["Title"] = "Edit Playlist Title";
 }
-
 <h1>Edit</h1>
-
 <h4>Playlist</h4>
 <hr />
+<!-- form that allows the user to change the name of the selected playlist -->
 <div class="row">
     <div class="col-md-4">
         <form asp-action="EditName">
@@ -18,17 +17,18 @@
                 <input asp-for="PlaylistName" class="form-control" />
                 <span asp-validation-for="PlaylistName" class="text-danger"></span>
             </div>
+            <!-- button to save the changes to the database -->
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" style="margin-top=10px;"/>
             </div>
         </form>
     </div>
 </div>
-
+<!-- button to send the user back to the playlist database view -->
 <div>
     <a class="btn btn-secondary" style="margin-top:10px;" asp-action="Database">Back to List</a>
 </div>
-
+<!-- get the info from the database asynchronously -->
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
