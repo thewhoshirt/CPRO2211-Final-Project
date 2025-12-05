@@ -39,13 +39,18 @@ namespace Music_App.Controllers
                 : Problem("Entity set 'MusicContext.Musics'  is null.");
         }
 
-        // GET: Musics
-        public async Task<IActionResult> Database()
+        // GET: Musics/Database
+        public async Task<IActionResult> Database(string searchQuery)
         {
-            return _context.Musics != null
-                ? View(await _context.Musics.ToListAsync())
-                : Problem("Entity set 'MusicContext.Musics'  is null.");
+            var musics = _context.Musics.AsQueryable();
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                musics = musics.Where(m => m.TrackTitle.Contains(searchQuery) || m.TrackArtist.Contains(searchQuery));
+            }
+            ViewData["SearchQuery"] = searchQuery;
+            return View(await musics.ToListAsync());
         }
+
 
 
         // GET: Musics/Create
