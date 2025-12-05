@@ -318,7 +318,7 @@ namespace Music_App.Controllers
                 return BadRequest("No audio is currently playing.");
             }
             int seconds = 10;
-            audioFile.Position += (long)(seconds * sampleRate); // fast-forward ~10 seconds based on sample rate (actually 13?)
+            audioFile.Position += (long)((seconds * 10) * sampleRate); // fast-forward ~10 seconds based on sample rate (actually 13?)
             Console.WriteLine("Fast-forwarded successfully.");
             return Ok("Audio fast-forwarded");
         }
