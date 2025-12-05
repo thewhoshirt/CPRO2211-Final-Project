@@ -242,6 +242,7 @@ namespace Music_App.Controllers
             output.Init(audioFile);
             output.Play();
             isAudioPlaying = true;
+            audioFile.Volume = 0.5f; // set volume to 50% when play is clicked
             Console.WriteLine("Audio started playing.");
             return Ok(new { message = "Audio is playing", trackTitle = track.TrackTitle, trackArtist = track.TrackArtist });
         }
@@ -322,17 +323,27 @@ namespace Music_App.Controllers
             return Ok("Audio fast-forwarded");
         }
         
+        /// <summary>
+        /// Raise the volume of the audioFileReader (open audio file) when the Vol up button is pressed
+        /// ranges from 0.0f to 1.0f, 0.1f (10%) increments were chosen as a sane default but anything less than 1.0f will work
+        /// </summary>
+        /// <returns>Ok when volume is raised or BadRequest when volume has reached the limit</returns>
         [HttpPost("up")]
         public IActionResult Up()
         {
             Console.WriteLine("Volume up button pressed.");
-
             if (output == null || !isAudioPlaying)
             {
                 Console.WriteLine("No audio is currently playing.");
                 return BadRequest("No audio is currently playing.");
             }
-            audioFile.Volume += 0.1f;
+
+            if (audioFile.Volume >= 1.0f)
+            {
+                audioFile.Volume = 1.0f; // if the volume goes above 100 set to 100%
+                return BadRequest("Volume cannot go above 100");
+            }
+            audioFile.Volume += 1 / 10.0f; // increase volume by 0.1
             Console.WriteLine("Volume raised successfully.");
             return Ok("Volume raised");
         }
