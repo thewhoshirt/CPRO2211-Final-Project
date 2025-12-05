@@ -6,5 +6,5 @@
 - [ ] URL - > able to get music from URL
 - [ ] Styling 
 - [ ] Track length display
-- [ ] volume control
+- [x] volume control
 - [X] only accepts mp3 files
