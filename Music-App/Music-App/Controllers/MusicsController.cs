@@ -274,6 +274,23 @@ namespace Music_App.Controllers
             }
         }
         
+        [HttpPost("rewind")]
+        public IActionResult Rewind()
+        {
+            Console.WriteLine("Rewind button pressed.");
+
+            if (output == null || !isAudioPlaying)
+            {
+                Console.WriteLine("No audio is currently playing.");
+                return BadRequest("No audio is currently playing.");
+            }
+            long samplerate = 48000;
+            long seconds = 10;
+            audioFile.Position -= ((seconds * 10) * samplerate); // rewind ~10 seconds based on sample rate (actually 13?)
+            Console.WriteLine("Rewinded successfully.");
+            return Ok("Audio rewound");
+        }
+        
         private void OnPlaybackStopped(object sender, StoppedEventArgs args)
         {
             output?.Dispose();
