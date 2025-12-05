@@ -17,8 +17,9 @@ namespace Music_App.Controllers
     {
         private static WaveOutEvent output;
         private static AudioFileReader audioFile;
-        private readonly MusicContext _context;
+        private static int sampleRate;
         private static bool isAudioPlaying = false;
+        private readonly MusicContext _context;
         // makes the max a file can be to 3mb 
         private long maxFileSize = 1024 * 1024 * 3; //  = 3 MB
         private readonly IConfiguration _config;
@@ -222,10 +223,14 @@ namespace Music_App.Controllers
                 return NotFound("Audio file path is missing or file not found.");
 
             audioFile = new AudioFileReader(audioPath);
+            using (var reader = new Mp3FileReader(audioPath))
+            {
+                sampleRate = reader.Mp3WaveFormat.SampleRate;
+                Console.WriteLine("Sample Rate: " + sampleRate);
+            }
             output.Init(audioFile);
             output.Play();
             isAudioPlaying = true;
-
             Console.WriteLine("Audio started playing.");
             return Ok("Audio is playing");
         }
@@ -284,9 +289,8 @@ namespace Music_App.Controllers
                 Console.WriteLine("No audio is currently playing.");
                 return BadRequest("No audio is currently playing.");
             }
-            long samplerate = 48000;
             long seconds = 10;
-            audioFile.Position -= ((seconds * 10) * samplerate); // rewind ~10 seconds based on sample rate (actually 13?)
+            audioFile.Position -= (long)((seconds * 10) * sampleRate); // rewind ~10 seconds based on sample rate (actually 13?)
             Console.WriteLine("Rewinded successfully.");
             return Ok("Audio rewound");
         }
@@ -301,9 +305,8 @@ namespace Music_App.Controllers
                 Console.WriteLine("No audio is currently playing.");
                 return BadRequest("No audio is currently playing.");
             }
-            long samplerate = 48000;
-            long seconds = 10;
-            audioFile.Position += ((seconds * 10) * samplerate); // fast-forward ~10 seconds based on sample rate (actually 13?)
+            int seconds = 10;
+            audioFile.Position += (long)(seconds * sampleRate); // fast-forward ~10 seconds based on sample rate (actually 13?)
             Console.WriteLine("Fast-forwarded successfully.");
             return Ok("Audio fast-forwarded");
         }
