@@ -47,18 +47,22 @@
 }
     </tbody>
 </table>
-
+<div>
+    <p>Playing: <span id="trackInfo"></span></p>
+</div>
+<button class="btn btn-outline-secondary" onclick="rewindAudio()"><<</button>
+<button class="btn btn-outline-secondary" onclick="pauseAudio()">Pause</button>
+<button class="btn btn-danger" onclick="stopAudio()">Stop</button>
+<button class="btn btn-outline-secondary" onclick="forwardAudio()">>></button>
 <div>
     <script>
-            // Updated playAudio function to handle the response and update the UI
             function playAudio(trackid) {
             fetch(`/play/${trackid}`, {
                 method: 'POST'
             })
-                .then(response => response.json()) // Parse the response as JSON
+                .then(response => response.json())
                 .then(data => {
                     if (data.message === "Audio is playing") {
-                        // Update the "Playing:" text with the track title and artist
                         document.getElementById('trackInfo').innerText = `${data.trackTitle} by ${data.trackArtist}`;
                         console.log('Audio is playing');
                     } else {
@@ -109,11 +113,4 @@
             }).catch(err => console.error('Error:', err));
         }
     </script>
-    <div>
-        <p>Playing: <span id="trackInfo"></span></p>
-    </div>
-    <button class="btn btn-outline-secondary" onclick="rewindAudio()"><<</button>
-    <button class="btn btn-outline-secondary" onclick="pauseAudio()">Pause</button>
-    <button class="btn btn-danger" onclick="stopAudio()">Stop</button>
-    <button class="btn btn-outline-secondary" onclick="forwardAudio()">>></button>
 </div>
