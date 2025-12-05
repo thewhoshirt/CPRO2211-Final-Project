@@ -1,51 +1,55 @@
-﻿@model IEnumerable<Music_App.Models.Music>
-
+﻿<!-- import the music model as IEnumerable so it can be iterated over -->
+@model IEnumerable<Music_App.Models.Music>
 @{
     ViewData["Title"] = "Database";
 }
-
 <h1>Database</h1>
-
+<!-- buttons to add a song or send the user back to the main page when clicked -->
 <nav>
     <a class="btn btn-secondary" asp-action="Create">Add song to database</a>
     <a class="btn btn-dark" asp-action="Index">Back to Index</a>
 </nav>
 <br />
+<!-- Search bar that sends the inputted filter to the view to be processed by the controller -->
 <form method="get" asp-action="Database">
     <div class="input-group mb-3">
         <input type="text" class="form-control" name="searchQuery" placeholder="Search by Title or Artist" value="@ViewData["SearchQuery"]" />
         <button class="btn btn-outline-secondary" type="submit">Search</button>
     </div>
 </form>
-
+<!-- table that displays all of the songs in the database -->
 <table class="table">
+    <!-- table headers -->
     <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.TrackFile)</th>
-            <th>@Html.DisplayNameFor(model => model.TrackTitle)</th>
-            <th>@Html.DisplayNameFor(model => model.TrackArtist)</th>
-            <th>@Html.DisplayNameFor(model => model.TrackLength)</th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.TrackFile)</th>
+        <th>@Html.DisplayNameFor(model => model.TrackTitle)</th>
+        <th>@Html.DisplayNameFor(model => model.TrackArtist)</th>
+        <th>@Html.DisplayNameFor(model => model.TrackLength)</th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model) {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.TrackFile)</td>
-                <td>@Html.DisplayFor(modelItem => item.TrackTitle)</td>
-                <td>@Html.DisplayFor(modelItem => item.TrackArtist)</td>
-                <td>@Html.DisplayFor(modelItem => item.TrackLength)</td>
-                <td>
-                    <button type="submit" style="font-size: 12px; height: 25px; background-color: mediumblue; border: 1px solid #000; border-radius: 5px;">
-                        <a asp-action="Edit" asp-route-id="@item.TrackId" style="color:floralwhite;">Edit</a>
-                    </button> |
-                    <form asp-action="Delete" method="post" asp-route-id="@item.TrackId" onsubmit="return confirm('Are you sure you want to delete this item?');" style="display: inline;">
-                        <button type="submit" style="font-size: 12px; height: 25px; color:floralwhite; background-color: red; border: 1px solid #000; border-radius: 5px;">
-                            Delete
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
+    <!-- iterate through each entity in the database and display the data as desired in the table -->
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => item.TrackFile)</td>
+            <td>@Html.DisplayFor(modelItem => item.TrackTitle)</td>
+            <td>@Html.DisplayFor(modelItem => item.TrackArtist)</td>
+            <td>@Html.DisplayFor(modelItem => item.TrackLength)</td>
+            <td>
+                <!-- buttons to edit or delete the selected song based on id -->
+                <button type="submit" style="font-size: 12px; height: 25px; background-color: mediumblue; border: 1px solid #000; border-radius: 5px;">
+                    <a asp-action="Edit" asp-route-id="@item.TrackId" style="color:floralwhite;">Edit</a>
+                </button> |
+                <form asp-action="Delete" method="post" asp-route-id="@item.TrackId" onsubmit="return confirm('Are you sure you want to delete this item?');" style="display: inline;">
+                    <button type="submit" style="font-size: 12px; height: 25px; color:floralwhite; background-color: red; border: 1px solid #000; border-radius: 5px;">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
