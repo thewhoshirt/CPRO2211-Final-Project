@@ -15,8 +15,8 @@ namespace Music_App.Controllers
 {
     public class MusicsController : Controller
     {
-        private WaveOutEvent output;
-        private AudioFileReader audioFile;
+        private static WaveOutEvent output;
+        private static AudioFileReader audioFile;
         private readonly MusicContext _context;
         private static bool isAudioPlaying = false;
         // makes the max a file can be to 3mb 
