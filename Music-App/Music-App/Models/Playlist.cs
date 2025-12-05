@@ -1,7 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿using System.ComponentModel.DataAnnotations; // Import DataAnnotations so that validations can be used
+/*
+ * Add the playlist model the models namespace
+ */
 namespace Music_App.Models
 {
+    /*
+     * Create the playlist model
+     */
     public class Playlist
     {
         [Key]
